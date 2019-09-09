@@ -34,10 +34,10 @@ from scipy.optimize import minimize
 import matplotlib.dates as mdates
 
 
-def neg_sr(allocs, portfolio):
+def neg_sr(allocs, portfolio, num_days):
     daily_values = (portfolio * allocs).sum(axis=1)
     rp = (daily_values / daily_values.shift(1)) - 1
-    sr = np.mean(rp) / np.std(rp)
+    sr = np.sqrt(num_days) * (np.mean(rp) / np.std(rp))
     return -1 * sr
 
 
@@ -50,7 +50,7 @@ def optimize_portfolio(sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 1, 1), \
     prices_all = get_data(syms, dates)  # automatically adds SPY
     prices = prices_all[syms]  # only portfolio symbols  		   	  			  	 		  		  		    	 		 		   		 		  
     prices_SPY = prices_all['SPY']  # only SPY, for comparison later  		   	  			  	 		  		  		    	 		 		   		 		  
-
+    num_days = prices_SPY.shape[0]
     num_syms = len(syms)
     allocs = np.ones(num_syms) / num_syms
     normed_prices = prices / prices.iloc[0]
@@ -59,7 +59,7 @@ def optimize_portfolio(sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 1, 1), \
     # finding optimal allocation
     bnds = ((0, 1),) * num_syms
     cons = ({'type': 'eq', 'fun': lambda allocs: 1.0 - np.sum(allocs)})
-    res = minimize(neg_sr, allocs, (normed_prices), method='SLSQP', bounds=bnds, constraints=cons)
+    res = minimize(neg_sr, allocs, (normed_prices, num_days), method='SLSQP', bounds=bnds, constraints=cons)
 
     #Computing stats
     allocs = res.x
