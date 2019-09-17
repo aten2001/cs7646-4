@@ -37,46 +37,40 @@ class RTLearner(object):
         idx = 0
         while not math.isnan(self.tree[idx, 0]):
             if point[self.tree[idx, 0]] <= self.tree[idx, 1]:
-                idx = idx + int(self.tree[idx, 2])
+                idx = idx + self.tree[idx, 2]
             else:
-                idx = idx + int(self.tree[idx, 3])
+                idx = idx + self.tree[idx, 3]
         return self.tree[idx, 1]
 
     def buildTree(self, data):
         if data.shape[0] <= self.leaf_size:
-            return np.array(
-                [np.nan, np.mean(data[:, -1]), np.nan.np.nan]).reshape(
-                (1, -1))
+            return np.array([[np.nan, np.mean(data[:, -1]), np.nan, np.nan]],
+                            dtype=object)
         if self.isYSame(data):
-            return np.array([np.nan, data[0, -1], np.nan.np.nan]).reshape(
-                (1, -1))
-        if self.isXSame(data):
-            return np.array(
-                [np.nan, np.mean(data[:, -1]), np.nan, np.nan]).reshape(
-                (1, -1))
+            return np.array([[np.nan, data[0, -1], np.nan, np.nan]],
+                            dtype=object)
+
         feature = self.getBestFeatureToSplit(data)
         sv = self.getSplitVal(data, feature)
-        left = self.buildTree(data[data[:, feature] <= sv])
-        right = self.buildTree(data[data[:, feature] > sv])
-        root = np.array([feature, sv, 1, left.shape[0]])
+        left_split = data[data[:, feature] <= sv]
+        right_split = data[data[:, feature] > sv]
+        if np.array_equal(left_split, data):
+            return np.array([[np.nan, np.mean(data[:, -1]), np.nan, np.nan]],
+                            dtype=object)
+        left = self.buildTree(left_split)
+        right = self.buildTree(right_split)
+        root = np.array([[feature, sv, 1, left.shape[0] + 1]], dtype=object)
         tree = np.concatenate((root.reshape(1, -1), left, right))
         return tree
 
     def isYSame(self, data):
-        y = data[:, -1]
-        if y[y[0] == y].shape[0] == y.shape[0]:
-            return True
-        return False
-
-    def isXSame(self, data):
-        x = data[:, :-1]
-        if (x[0] == x).size == x.size:
+        if np.unique(data[:, -1]).shape[0] == 1:
             return True
         return False
 
     def getBestFeatureToSplit(self, data):
-        df = pd.DataFrame(data)
-        return df.corr().iloc[:, -1][:-1].idxmax()
+        num_features = data.shape[1] - 1
+        return np.random.randint(0, num_features)
 
     def getSplitVal(self, data, feature):
         return np.median(data[:, feature])
