@@ -3,7 +3,7 @@ import pandas as pd
 import math
 
 
-class DTLearner(object):
+class BagLearner(object):
 
     def __init__(self, leaf_size=1, verbose=False):
         self.tree = None
