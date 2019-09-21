@@ -42,10 +42,12 @@ if __name__=="__main__":
         sys.exit(1)
     df = pd.read_csv(sys.argv[1], index_col='date')
     data = df.to_numpy()
-    rows = np.random.permutation(data.shape[0])
-    cutoff = int(data.shape[0] * .6)
-    train_data = data[rows[:cutoff], :]
-    test_data = data[rows[cutoff:], :]
+    train_rows = int(0.6 * data.shape[0])
+    test_rows = data.shape[0] - train_rows
+    # rows = np.random.permutation(data.shape[0])
+    # cutoff = int(data.shape[0] * .6)
+    train_data = data[:train_rows, :]
+    test_data = data[train_rows:, :]
     trainX = train_data[:, :-1]
     trainY = train_data[:, -1]
     testX = test_data[:, :-1]
@@ -61,8 +63,8 @@ if __name__=="__main__":
         test_rmse.append(calc_rmse(testY, learner.query(testX)))
 
     plt.figure(figsize=(8, 6), dpi=80)
-    plt.plot(train_rmse, label='Train RMSE', marker='o')
-    plt.plot(test_rmse, label='Test RMSE', marker='o')
+    plt.plot(np.arange(50)+1, train_rmse, label='Train RMSE', marker='o')
+    plt.plot(np.arange(50)+1, test_rmse, label='Test RMSE', marker='o')
     plt.xlim(1, max_leaf)
     plt.grid(True)
     plt.legend(loc="lower right")
@@ -85,8 +87,8 @@ if __name__=="__main__":
         test_rmse.append(calc_rmse(testY, learner.query(testX)))
 
     plt.figure(figsize=(8, 6), dpi=80)
-    plt.plot(train_rmse, label='Train RMSE', marker='o')
-    plt.plot(test_rmse, label='Test RMSE', marker='o')
+    plt.plot(np.arange(50)+1, train_rmse, label='Train RMSE', marker='o')
+    plt.plot(np.arange(50)+1, test_rmse, label='Test RMSE', marker='o')
     plt.xlim(1, max_leaf)
     plt.grid(True)
     plt.legend(loc="lower right")
@@ -113,8 +115,12 @@ if __name__=="__main__":
         dt_test_rmse.append(calc_rmse(testY, dt.query(testX)))
 
     plt.figure(figsize=(8, 6), dpi=80)
-    plt.plot(rt_test_rmse, label='RTLearner RMSE', marker='o')
-    plt.plot(dt_test_rmse, label='DTLearner RMSE', marker='o')
+    plt.plot(np.arange(50) + 1, rt_train_rmse, label='RTLearner Train RMSE',
+             marker='o')
+    plt.plot(np.arange(50)+1, rt_test_rmse, label='RTLearner Test RMSE',
+             marker='o')
+    plt.plot(np.arange(50)+1, dt_test_rmse, label='DTLearner Test RMSE',
+             marker='o')
     plt.xlim(1, max_leaf)
     plt.grid(True)
     plt.legend(loc="lower right")
@@ -122,7 +128,7 @@ if __name__=="__main__":
     plt.xlabel("Leaf size")
     plt.ylabel("RMSE")
     plt.xticks(np.arange(0, max_leaf, 5))
-    plt.yticks(np.arange(6, 10, .5) * .001)
+    plt.yticks(np.arange(0, 10, 1) * .001)
     plt.savefig("rt_vs_dt_error.png", format="PNG")
 
     rt_time = []
@@ -130,8 +136,8 @@ if __name__=="__main__":
     rt_size = []
     training_samples = []
     for i in range(1, data.shape[0], 10):
-        rows = np.random.permutation(data.shape[0])
-        tmp_data = data[rows[:i]]
+        # rows = np.random.permutation(data.shape[0])
+        tmp_data = data[:i]
         training_samples.append(tmp_data.shape[0])
         trainX = tmp_data[:, :-1]
         trainY = tmp_data[:, -1]
@@ -161,8 +167,8 @@ if __name__=="__main__":
     rt_size = []
     training_samples = []
     for i in range(1, data.shape[0], 10):
-        rows = np.random.permutation(data.shape[0])
-        tmp_data = data[rows[:i]]
+        # rows = np.random.permutation(data.shape[0])
+        tmp_data = data[:i]
         training_samples.append(tmp_data.shape[0])
         trainX = tmp_data[:, :-1]
         trainY = tmp_data[:, -1]
