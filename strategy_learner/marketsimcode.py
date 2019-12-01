@@ -1,3 +1,7 @@
+# Student Name: Sanjana Garg (replace with your name)
+# GT User ID: sgarg96 (replace with your User ID)
+# GT ID: 903475801 (replace with your GT ID)
+
 import datetime as dt
 
 import pandas as pd

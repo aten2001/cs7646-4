@@ -1,3 +1,7 @@
+# Student Name: Sanjana Garg (replace with your name)
+# GT User ID: sgarg96 (replace with your User ID)
+# GT ID: 903475801 (replace with your GT ID)
+
 from ManualStrategy import ManualStrategy
 from StrategyLearner import StrategyLearner
 from indicators import *
@@ -62,7 +66,7 @@ def get_benchmark_trades(sd, ed, symbol):
     prices_all = get_data(syms, dates)  # automatically adds SPY
     prices = prices_all[syms]  # only portfolio symbols
     orders_df = pd.DataFrame(index=prices.index[:1])
-    orders_df['Symbol'] = 'JPM'
+    orders_df['Symbol'] = symbol
     orders_df['Order'] = 'BUY'
     orders_df['Shares'] = 1000
     return orders_df
@@ -99,10 +103,12 @@ def test(symbol, sd, ed, sv, plot_file, sl, ms, commission, impact):
              plot_file)
     print_stats([portfolio_sl, portfolio_ms, portfolio_bench])
 
+def author():
+    return 'sgarg96'
+
 
 if __name__ == '__main__':
     register_matplotlib_converters()
-    np.random.seed(42)
     impact = 0.005
     symbol = "JPM"
     commission = 0.0
@@ -115,6 +121,7 @@ if __name__ == '__main__':
     sd = dt.datetime(2008, 1, 1)
     ed = dt.datetime(2009, 12, 31)
 
+    np.random.seed(42)
     # learning step
     sl.addEvidence(symbol, sd, ed, sv)
 

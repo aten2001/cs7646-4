@@ -1,3 +1,7 @@
+# Student Name: Sanjana Garg (replace with your name)
+# GT User ID: sgarg96 (replace with your User ID)
+# GT ID: 903475801 (replace with your GT ID)
+
 from StrategyLearner import StrategyLearner
 from indicators import *
 from marketsimcode import compute_portvals
@@ -42,7 +46,7 @@ def get_benchmark_trades(sd, ed, symbol):
     prices_all = get_data(syms, dates)  # automatically adds SPY
     prices = prices_all[syms]  # only portfolio symbols
     orders_df = pd.DataFrame(index=prices.index[:1])
-    orders_df['Symbol'] = 'JPM'
+    orders_df['Symbol'] = symbol
     orders_df['Order'] = 'BUY'
     orders_df['Shares'] = 1000
     return orders_df
@@ -88,6 +92,10 @@ def test(symbol, sd, ed, sv, sl, commission, impact):
     return portfolio_bench, portfolio_sl
 
 
+def author():
+    return 'sgarg96'
+
+
 if __name__ == '__main__':
     register_matplotlib_converters()
     np.random.seed(42)
@@ -100,9 +108,10 @@ if __name__ == '__main__':
     ed = dt.datetime(2009, 12, 31)
 
     portfolio_list = []
+    orders_list = []
     for impact in impact_values:
         sl = StrategyLearner(impact=impact)
-
+        np.random.seed(42)
         # learning step
         sl.addEvidence(symbol, sd, ed, sv)
 
@@ -111,6 +120,7 @@ if __name__ == '__main__':
 
         # build orders
         orders_sl = get_orders_df(trades_sl, symbol)
+        orders_list.append(orders_sl)
 
         # execute orders
         portfolio_sl = compute_portvals(orders_sl, sv, commission, impact, sd,
@@ -129,6 +139,22 @@ if __name__ == '__main__':
              portfolio_bench,
              portfolio_list,
              impact_values)
+
+    plot_cmp(portfolio_bench.index,
+             portfolio_bench,
+             [portfolio_list[0]],
+             [impact_values[0]],
+             orders_list[0],
+             True,
+             "impact0005.png")
+
+    plot_cmp(portfolio_bench.index,
+             portfolio_bench,
+             [portfolio_list[-1]],
+             [impact_values[-1]],
+             orders_list[-1],
+             True,
+             "impact05.png")
 
     portfolio_list.append(portfolio_bench)
     print_stats(portfolio_list)

@@ -86,7 +86,7 @@ class StrategyLearner(object):
     def get_pos(self, x):
         if x > 0.05 + self.impact:
             return 1
-        elif x < -0.02 - self.impact:
+        elif x < -0.03 - self.impact:
             return -1
         else:
             return 0

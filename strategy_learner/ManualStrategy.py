@@ -1,3 +1,7 @@
+# Student Name: Sanjana Garg (replace with your name)
+# GT User ID: sgarg96 (replace with your User ID)
+# GT ID: 903475801 (replace with your GT ID)
+
 import datetime as dt
 
 import matplotlib.pyplot as plt
@@ -33,13 +37,13 @@ class ManualStrategy:
         for date in price.index[n - 1:]:
             trades.append(0)
             if (sma_ratio[date] > 1 and bb_ratio[date] > 1) or 0.2 < momentum[
-                date] < 1:
+                date]:
                 if net_holdings > min_holdings:
                     num_shares = min_holdings - net_holdings
                     trades[-1] = num_shares
                     net_holdings = min_holdings
-            elif (sma_ratio[date] < 1 and bb_ratio[date] < -1) and -0.2 < \
-                    momentum[date] < 0:
+            elif (sma_ratio[date] < 1 and bb_ratio[date] < -1) or momentum[
+                date] < -0.2:
                 if net_holdings < max_holdings:
                     num_shares = max_holdings - net_holdings
                     trades[-1] = num_shares
@@ -49,26 +53,30 @@ class ManualStrategy:
         return df_trades
 
 
+    def author(self):
+        return 'sgarg96'
+
 def author():
     return 'sgarg96'
 
 
-def get_orders_df(df_trades):
+
+def get_orders_df(df_trades, symbol):
     dates = []
     order_type = []
     shares = []
     for date in df_trades.index:
-        if df_trades.loc[date]['JPM'] > 0:
+        if df_trades.loc[date][symbol] > 0:
             dates.append(date)
             order_type.append('BUY')
-            shares.append(df_trades.loc[date]['JPM'])
-        elif df_trades.loc[date]['JPM'] < 0:
+            shares.append(df_trades.loc[date][symbol])
+        elif df_trades.loc[date][symbol] < 0:
             dates.append(date)
             order_type.append('SELL')
-            shares.append(abs(df_trades.loc[date]['JPM']))
+            shares.append(abs(df_trades.loc[date][symbol]))
 
     orders = pd.DataFrame(index=dates)
-    orders['Symbol'] = 'JPM'
+    orders['Symbol'] = symbol
     orders['Order'] = order_type
     orders['Shares'] = shares
     return orders
@@ -98,7 +106,7 @@ def get_benchmark_trades(sd, ed, symbol):
     prices_all = get_data(syms, dates)  # automatically adds SPY
     prices = prices_all[syms]  # only portfolio symbols
     orders_df = pd.DataFrame(index=prices.index[:1])
-    orders_df['Symbol'] = 'JPM'
+    orders_df['Symbol'] = symbol
     orders_df['Order'] = 'BUY'
     orders_df['Shares'] = 1000
     return orders_df
@@ -116,12 +124,11 @@ if __name__ == '__main__':
     ed = dt.datetime(2009, 12, 31)
     bench_orders = get_benchmark_trades(sd, ed, symbol)
 
-
     df_trades = ms.testPolicy(symbol, sd, ed, 100000)
-    orders = get_orders_df(df_trades)
+    orders = get_orders_df(df_trades, symbol)
 
     benchmark_df = pd.DataFrame(index=[dt.datetime(2008, 1, 2)])
-    benchmark_df['Symbol'] = 'JPM'
+    benchmark_df['Symbol'] = symbol
     benchmark_df['Order'] = 'BUY'
     benchmark_df['Shares'] = 1000
 
@@ -143,10 +150,10 @@ if __name__ == '__main__':
     sd = dt.datetime(2010, 1, 1)
     ed = dt.datetime(2011, 12, 31)
     df_trades = ms.testPolicy(symbol, sd, ed, 100000)
-    orders = get_orders_df(df_trades)
+    orders = get_orders_df(df_trades, symbol)
 
     benchmark_df = pd.DataFrame(index=[dt.datetime(2010, 1, 4)])
-    benchmark_df['Symbol'] = 'JPM'
+    benchmark_df['Symbol'] = symbol
     benchmark_df['Order'] = 'BUY'
     benchmark_df['Shares'] = 1000
 
