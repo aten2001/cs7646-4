@@ -5,7 +5,8 @@ import pandas as pd
 from pandas.plotting import register_matplotlib_converters
 
 from indicators import calc_sma_ratio, calc_bb_ratio, \
-    calc_avg_daily_returns, calc_std_daily_returns, calc_cum_return
+    calc_avg_daily_returns, calc_std_daily_returns, calc_cum_return, \
+    calc_momentum
 from marketsimcode import compute_portvals
 from util import get_data
 
@@ -23,7 +24,7 @@ class ManualStrategy:
         n = 14
         sma_ratio = calc_sma_ratio(price, n)
         bb_ratio = calc_bb_ratio(price, n)
-
+        momentum = calc_momentum(price, n)
         net_holdings = 0
         min_holdings = -1000
         max_holdings = 1000
@@ -31,12 +32,14 @@ class ManualStrategy:
 
         for date in price.index[n - 1:]:
             trades.append(0)
-            if sma_ratio[date] > 1 and bb_ratio[date] > 1:
+            if (sma_ratio[date] > 1 and bb_ratio[date] > 1) or 0.2 < momentum[
+                date] < 1:
                 if net_holdings > min_holdings:
                     num_shares = min_holdings - net_holdings
                     trades[-1] = num_shares
                     net_holdings = min_holdings
-            elif sma_ratio[date] < 1 and bb_ratio[date] < -1:
+            elif (sma_ratio[date] < 1 and bb_ratio[date] < -1) and -0.2 < \
+                    momentum[date] < 0:
                 if net_holdings < max_holdings:
                     num_shares = max_holdings - net_holdings
                     trades[-1] = num_shares
